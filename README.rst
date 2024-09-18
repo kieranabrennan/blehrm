@@ -1,8 +1,9 @@
 =============
-blehrm
+🎴 blehrm
 =============
 
-Blehrm is a platform for streaming data from bluetooth low energy (BLE) heart rate monitors. Built on `Bleak <https://github.com/hbldh/bleak>`_
+Blehrm is a platform for streaming data from bluetooth low energy (BLE) heart rate monitors. Built on `Bleak <https://github.com/hbldh/bleak>`_.
+
 Blehrm provides a simple asynchronous platform to connect with commonly available heart rate monitors including the Polar H10.
 
 - Free software: MIT License
@@ -48,6 +49,7 @@ To discover (supported) HR monitors:
         asyncio.run(main())
 
 Connect and stream interbeat interval 
+
 Consume data stream with a callback
 
 .. code-block:: python

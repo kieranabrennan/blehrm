@@ -1,0 +1,27 @@
+bleak==0.22.2
+# Editable install with no version control (blehrm==0.1.0)
+-e /Users/kieranbrennan/Documents/Projects/blehrm
+contourpy==1.3.0
+cycler==0.12.1
+fonttools==4.53.1
+kiwisolver==1.4.7
+matplotlib==3.9.2
+numpy==2.1.1
+packaging==24.1
+pillow==10.4.0
+pyobjc-core==10.3.1
+pyobjc-framework-Cocoa==10.3.1
+pyobjc-framework-CoreBluetooth==10.3.1
+pyobjc-framework-libdispatch==10.3.1
+PyOpenGL==3.1.7
+pyparsing==3.1.4
+pyqtgraph==0.13.7
+PySide6==6.7.2
+PySide6_Addons==6.7.2
+PySide6_Essentials==6.7.2
+python-dateutil==2.9.0.post0
+qasync==0.27.1
+shiboken6==6.7.2
+six==1.16.0
+tabulate==0.9.0
+tqdm==4.66.5

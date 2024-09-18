@@ -17,6 +17,7 @@ Installation
 ------------
 
 .. code-block:: bash
+
     pip install blehrm
 
 Features
@@ -126,6 +127,7 @@ Development
 Extend support for a custom HR monitor by subclassing the interface base class, and implementing two methods:
 
 .. code-block:: python
+    
     # blehrm/readers/custom_hrm.py
 
     from blehrm.interface import SensorReaderInterface

@@ -108,7 +108,7 @@ Accelerometer visualisation
 --------
 examples/live_acc.py
 
-.. image:: images/live_ecg.gif
+.. image:: images/live_acc.gif
 :alt: Live ACC Example
 
 Compare HR accuracy between sensors

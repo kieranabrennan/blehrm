@@ -27,7 +27,7 @@ Features
 - Discover supported BLE HR monitors nearby
 
 Usage
-=====
+-----
 
 To discover (supported) HR monitors:
 
@@ -96,24 +96,24 @@ Consume data stream with a callback
             print("\nStream stopped by user.")
 
 Examples
-=======
+------
 
 Live ECG
---------
+======
 examples/live_ecg.py
 
 .. image:: images/live_ecg.gif
     :alt: Live ECG Example
 
 Accelerometer visualisation
---------
+======
 examples/live_acc.py
 
 .. image:: images/live_acc.gif
     :alt: Live ACC Example
 
 Compare HR accuracy between sensors
-------
+======
 examples/hr_comparison.py
 
 .. image:: images/hr_comparison.png
@@ -122,12 +122,12 @@ examples/hr_comparison.py
 
 
 Development
-==========
+-------
 
 Extend support for a custom HR monitor by subclassing the interface base class, and implementing two methods:
 
 .. code-block:: python
-    
+
     # blehrm/readers/custom_hrm.py
 
     from blehrm.interface import SensorReaderInterface

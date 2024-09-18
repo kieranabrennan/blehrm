@@ -102,21 +102,21 @@ Live ECG
 examples/live_ecg.py
 
 .. image:: images/live_ecg.gif
-:alt: Live ECG Example
+    :alt: Live ECG Example
 
 Accelerometer visualisation
 --------
 examples/live_acc.py
 
 .. image:: images/live_acc.gif
-:alt: Live ACC Example
+    :alt: Live ACC Example
 
 Compare HR accuracy between sensors
 ------
 examples/hr_comparison.py
 
 .. image:: images/hr_comparison.png
-:alt: HR comparison
+    :alt: HR comparison
 
 
 

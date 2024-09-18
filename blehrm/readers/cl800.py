@@ -24,7 +24,7 @@ class CL800Reader(SensorReaderInterface):
     
     def _ibi_data_processor(self, data: bytearray) -> np.ndarray:
         if len(data) < 2:
-            print(f"Warning: Received data is too short: {data}")
+            self.logger.warning(f"Received data is too short: {data}")
             return np.array([])
 
         byte0 = data[0]  # heart rate format
@@ -33,7 +33,7 @@ class CL800Reader(SensorReaderInterface):
         rr_interval = ((byte0 >> 4) & 1) == 1
 
         if not rr_interval:
-            print("Warning: No RR interval data present")
+            self.logger.warning("No RR interval data present")
             return np.array([])
 
         first_rr_byte = 2
@@ -48,7 +48,7 @@ class CL800Reader(SensorReaderInterface):
                 first_rr_byte += 2
 
             if first_rr_byte >= len(data):
-                print(f"Warning: No IBI data present after HR and flags: {data}")
+                self.logger.warning(f"No IBI data present after HR and flags: {data}")
                 return np.array([])
 
             sample_data = []
@@ -59,17 +59,17 @@ class CL800Reader(SensorReaderInterface):
                     timestamp = time.time_ns() / 1.0e9
                     sample_data.append([timestamp, ibi_ms])
                 except IndexError:
-                    print(f"Warning: Incomplete IBI data at index {i}")
+                    self.logger.warning(f"Incomplete IBI data at index {i}")
                     break
 
             if not sample_data:
-                print("Warning: No valid IBI data processed")
+                self.logger.warning("No valid IBI data processed")
                 return np.array([])
 
             return np.array(sample_data)
 
         except Exception as e:
-            print(f"Error processing IBI data: {e}")
+            self.logger.error(f"Error processing IBI data: {e}")
             return np.array([])
 
     async def start_acc_stream(self, callback):
@@ -92,19 +92,15 @@ class CL800Reader(SensorReaderInterface):
         Accelerometer values are 16 bit 
         ''' 
         if len(data) < 3:
-            print(f"Warning: Received data is too short: {data}")
+            self.logger.warning(f"Received data is too short: {data}")
             return np.array([])
 
         prefix = data[0:3]
         acc_bytes = data[3:]
 
         if prefix[2] != 0x0c:
-            # print(f"Warning: Unexpected prefix: {prefix}")
+            self.logger.warning(f"Unexpected prefix: {prefix}")
             return np.array([])
-
-        # if len(acc_bytes) % 6 != 0:
-        #     print(f"Warning: Incomplete accelerometer data: {len(acc_bytes)} bytes")
-        #     return np.array([])
 
         message_timestamp = time.time_ns()/1.0e9
         n_samples = len(acc_bytes) // 6  # x,y,z 16 bit each axis    
@@ -120,7 +116,7 @@ class CL800Reader(SensorReaderInterface):
                 z = int.from_bytes(acc_bytes[start_id+4:start_id+6], byteorder='little', signed=True) * 9.81 / 4096.0
                 sample_data.append([sample_timestamp, x, y, z])
             except Exception as e:
-                print(f"Error processing sample {sample_id}: {e}")
+                self.logger.error(f"Error processing sample {sample_id}: {e}")
                 continue
 
         return np.array(sample_data)

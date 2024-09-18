@@ -27,8 +27,8 @@ class GarminHRMProReader(SensorReaderInterface):
         has_ibi = (flags >> 4) & 0x01
         
         if not has_ibi:
-            # print(f"No IBI data present. Flags: {flags:08b}")
-            return np.array([])  # Return an empty array instead of None
+            self.logger.warning("No IBI data present. Flags: {flags:08b}")
+            return np.array([])
         
         ibi_start = 2 if hr_format == 0 else 3
         ibis = []
@@ -39,7 +39,7 @@ class GarminHRMProReader(SensorReaderInterface):
             ibis.append(ibi)
         
         if not ibis:
-            print(f"No IBI values extracted. Data length: {len(data)}, IBI start: {ibi_start}")
-            return np.array([])  # Return an empty array if no IBIs were extracted
+            self.logger.warning(f"No IBI values extracted. Data length: {len(data)}, IBI start: {ibi_start}")
+            return np.array([]) 
         
         return np.array([[sample_time, ibi] for ibi in ibis])

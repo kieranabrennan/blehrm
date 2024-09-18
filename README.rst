@@ -2,6 +2,8 @@
 🎴 blehrm
 =============
 
+Bluetooth Low Energy Heart Rate Monitoring
+
 Blehrm is a platform for streaming data from bluetooth low energy (BLE) heart rate monitors. Built on `Bleak <https://github.com/hbldh/bleak>`_.
 
 Blehrm provides a simple asynchronous platform to connect with commonly available heart rate monitors including the Polar H10.
@@ -61,24 +63,17 @@ Consume data stream with a callback
     import sys
     from datetime import datetime
 
-    ADDRESS = "34987821-60E5-03FB-70CC-BF552DC66039"
+    ADDRESS = "CF7582F0-5AA4-7279-63A3-5850A4B6F780"
 
     def print_callback(data):
-
-        sys.stdout.write(f"\r{epoch_s_to_datetime(data[0])}: {ibi_to_hr(data[1])} bpm")
-        sys.stdout.flush()
-
-    def ibi_to_hr(ibi):
-        return round(60000/ibi, 1)
-
-    def epoch_s_to_datetime(epoch_s):
-        try:
-            return datetime.fromtimestamp(epoch_s).strftime("%Y-%m-%d %H:%M:%S.%f")
-        except Exception as e:
-            return f"Error: {e}"
+        if data.size > 0:
+            t, ibi = data
+            t_str = datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S.%f")
+            hr = round(60000/ibi, 1)
+            sys.stdout.write(f"\r{t_str}: {hr} bpm")
+            sys.stdout.flush()
         
     async def main():
-        
         ble_device = await BleakScanner.find_device_by_address(ADDRESS, timeout=20.0)
         if ble_device is None:
             print(f"Device with address {ADDRESS} not found")
@@ -88,6 +83,7 @@ Consume data stream with a callback
         await blehrm_reader.connect()
         await blehrm_reader.start_ibi_stream(print_callback)
 
+        print("Streaming interbeat-interval data. Press Ctrl+C to stop.")
         while True:
             await asyncio.sleep(1)
 

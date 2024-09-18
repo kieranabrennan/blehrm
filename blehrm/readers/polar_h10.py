@@ -74,7 +74,8 @@ class PolarH10Reader(SensorReaderInterface):
         rr_interval = ((byte0 >> 4) & 1) == 1
 
         if not rr_interval:
-            return
+            self.logger.warning("No RR interval data present")
+            return np.array([])
 
         first_rr_byte = 2
         if uint8_format:
@@ -94,7 +95,7 @@ class PolarH10Reader(SensorReaderInterface):
             # Convert 1/1024 sec format to milliseconds.
             ibi = np.ceil(ibi / 1024 * 1000)
             ibis.append(ibi)
-        # mean_ibi = np.mean(ibis)
+
         sample_time = time.time_ns()/1.0e9
 
         return np.array([[sample_time, ibi] for ibi in ibis])

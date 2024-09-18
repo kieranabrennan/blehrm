@@ -4,6 +4,7 @@ from blehrm.UUIDS import (HEART_RATE_MEASUREMENT_UUID, MANUFACTURER_NAME_UUID,
                    MODEL_NBR_UUID, BATTERY_LEVEL_UUID)
 from typing import Callable, Union, Any, Optional
 import numpy as np
+import logging
 
 DataCallback = Callable[[np.ndarray], None]
 
@@ -30,6 +31,7 @@ class SensorReaderInterface(ABC):
         self._ibi_callback: Optional[DataCallback] = None
         self._acc_callback: Optional[DataCallback] = None
         self._ecg_callback: Optional[DataCallback] = None
+        self.logger = logging.getLogger(__name__)
 
     @staticmethod
     @abstractmethod
@@ -53,8 +55,9 @@ class SensorReaderInterface(ABC):
         try:
             self.bleak_client = BleakClient(self.ble_device)
             await self.bleak_client.connect()
+            self.logger.info("Connected to device successfully")
         except Exception as e:
-            print(f"Failed to connect: {e}")
+            self.logger.error(f"Failed to connect: {e}")
 
     async def disconnect(self) -> None:
         """Disconnect from the BLE device.
@@ -64,8 +67,9 @@ class SensorReaderInterface(ABC):
         """
         try:
             await self.bleak_client.disconnect()
+            self.logger.info("Disconnected from device successfully")
         except Exception as e:
-            print(f"Failed to disconnect: {e}")
+            self.logger.error(f"Failed to disconnect: {e}")
 
     async def get_device_info(self) -> None:
         """Retrieve device information.
@@ -91,7 +95,7 @@ class SensorReaderInterface(ABC):
     @property
     def ibi_callback(self) -> DataCallback:
         if not self._ibi_callback:
-            raise ValueError('Set the ibi_callback first with')
+            raise ValueError('Set the ibi_callback first with set_ibi_callback')
         else:
             return self._ibi_callback
 
@@ -121,8 +125,9 @@ class SensorReaderInterface(ABC):
         """
         result = self._ibi_data_processor(data)
         for row in result:
+            if row.ndim > 1:
+                self.logger.warning("More than one IBI data row")
             self.ibi_callback(row)
-        pass
 
     @abstractmethod
     def _ibi_data_processor(self, data:bytearray) -> np.ndarray:
@@ -168,6 +173,8 @@ class SensorReaderInterface(ABC):
         """
         result = self._acc_data_processor(data)
         for row in result:
+            if row.ndim > 1:
+                self.logger.warning("More than one ACC data row")
             self.acc_callback(row)
         pass
 
@@ -211,6 +218,8 @@ class SensorReaderInterface(ABC):
         """
         result = self._ecg_data_processor(data)
         for row in result:
+            if row.ndim > 1:
+                self.logger.warning("More than one ECG data row")
             self.ecg_callback(row)
         pass
 

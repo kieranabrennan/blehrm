@@ -1,10 +1,10 @@
-from blehrm.interface import SensorReaderInterface
-from blehrm.registry import blehrmRegistry
+from blehrm.interface import BlehrmClientInterface
+from blehrm.registry import BlehrmRegistry
 import time
 import numpy as np
 
-@blehrmRegistry.register("CL800")
-class CL800Reader(SensorReaderInterface):
+@BlehrmRegistry.register("CL800")
+class CL800Reader(BlehrmClientInterface):
     
     ## ACCELEROMETER SERVCIE
     ACC_SERVICE_UUID = "aae28f00-71b5-42a1-8c3c-f9cf6ac969d0"
@@ -99,7 +99,7 @@ class CL800Reader(SensorReaderInterface):
         acc_bytes = data[3:]
 
         if prefix[2] != 0x0c:
-            self.logger.warning(f"Unexpected prefix: {prefix}")
+            # self.logger.warning(f"Unexpected prefix: {prefix}")
             return np.array([])
 
         message_timestamp = time.time_ns()/1.0e9

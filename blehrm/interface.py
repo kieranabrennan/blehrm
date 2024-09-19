@@ -8,8 +8,8 @@ import logging
 
 DataCallback = Callable[[np.ndarray], None]
 
-class SensorReaderInterface(ABC):
-    """Abstract base class for sensor reader.
+class BlehrmClientInterface(ABC):
+    """Abstract base class for sensor client.
 
     This class defines the interface for interacting with various ECG chest strap sensors.
     Two methods required at minimum:
@@ -22,7 +22,7 @@ class SensorReaderInterface(ABC):
         _acc_data_processor (or _ecg_data_processor)
     """
     def __init__(self, ble_device: Union[BLEDevice, str]):
-        """Initialize the sensor reader.
+        """Initialize the sensor client.
 
         Args:
             ble_device: The BLEDevice (bleak)
@@ -36,7 +36,7 @@ class SensorReaderInterface(ABC):
     @staticmethod
     @abstractmethod
     def is_supported(device_name: str) -> bool:
-        """Check if the device is supported by this sensor reader.
+        """Check if the device is supported by this sensor client.
 
         Args:
             device_name: The name of the device to check.
@@ -223,7 +223,7 @@ class SensorReaderInterface(ABC):
             self.ecg_callback(row)
         pass
 
-    def _ecg_data_processor(self, data:bytearray) -> np.ndarray:
+    def _ecg_data_processor(self, data: bytearray) -> np.ndarray:
         """ Process sensor byte data, returning numpy array of the result, where each row is a data point
         """
         raise NotImplementedError("ECG streaming is not supported for this sensor")

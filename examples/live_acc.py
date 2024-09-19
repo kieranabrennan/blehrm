@@ -1,5 +1,4 @@
-from blehrm import readers
-from blehrm import registry
+import blehrm
 from bleak import BleakScanner
 import asyncio
 import sys
@@ -8,8 +7,8 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 import pyqtgraph.opengl as gl
 from qasync import QEventLoop
 
-# ADDRESS = "CF7582F0-5AA4-7279-63A3-5850A4B6F780" # CL800
-ADDRESS = "5BE8C8E0-8FA7-CEE7-4662-D49695040AF7" # Polar H10
+ADDRESS = "CF7582F0-5AA4-7279-63A3-5850A4B6F780" # CL800
+# ADDRESS = "5BE8C8E0-8FA7-CEE7-4662-D49695040AF7" # Polar H10
 
 class AccelerometerVisualizer(QMainWindow):
     def __init__(self):
@@ -55,11 +54,11 @@ async def main(view):
         print(f"Device with address {ADDRESS} not found")
         return
 
-    blehrm_reader = registry.blehrmRegistry.create_reader(ble_device)    
-    await blehrm_reader.connect()
-    await blehrm_reader.start_acc_stream(view.update_acc_vector)
+    blehrm_client = blehrm.registry.BlehrmRegistry.create_client(ble_device)    
+    await blehrm_client.connect()
+    await blehrm_client.start_acc_stream(view.update_acc_vector)
 
-    print("Streaming ecg data. Press Ctrl+C to stop.")
+    print("Streaming acc data. Press Ctrl+C to stop.")
     while True:
         await asyncio.sleep(1)
 

@@ -1,11 +1,11 @@
-from blehrm.interface import SensorReaderInterface
-from blehrm.registry import blehrmRegistry
+from ..interface import BlehrmClientInterface
+from ..registry import BlehrmRegistry
 import time
 import numpy as np
 import math
 
-@blehrmRegistry.register("PolarH10")
-class PolarH10Reader(SensorReaderInterface):
+@BlehrmRegistry.register("PolarH10")
+class PolarH10Reader(BlehrmClientInterface):
     
     ## UNKNOWN 1 SERVICE
     U1_SERVICE_UUID = "6217ff4b-fb31-1140-ad5a-a45545d7ecf3"

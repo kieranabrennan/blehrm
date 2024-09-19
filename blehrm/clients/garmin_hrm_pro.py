@@ -1,10 +1,10 @@
-from blehrm.interface import SensorReaderInterface
-from blehrm.registry import blehrmRegistry
+from ..interface import BlehrmClientInterface
+from ..registry import BlehrmRegistry
 import time
 import numpy as np
 
-@blehrmRegistry.register("GarminHRMPro")
-class GarminHRMProReader(SensorReaderInterface):
+@BlehrmRegistry.register("GarminHRMPro")
+class GarminHRMProReader(BlehrmClientInterface):
     
     def __init__(self, ble_device):
         super().__init__(ble_device)

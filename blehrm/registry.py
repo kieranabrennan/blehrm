@@ -1,13 +1,12 @@
-from blehrm.interface import SensorReaderInterface
+from .interface import BlehrmClientInterface
 from typing import Dict, Type, List, Tuple, Any, Optional
 from bleak import BLEDevice
-from tabulate import tabulate
 
-class blehrmRegistry:
+class BlehrmRegistry:
     """Registry for available sensors.
     Register a sensor class with the decorator:
         
-        @blehrmRegistry.register("SensorName")
+        @BlehrmRegistry.register("SensorName")
 
     Methods:
         register
@@ -17,7 +16,7 @@ class blehrmRegistry:
         get_supported_devices
         get_device_class
         get_device_services
-        create_reader
+        create_client
         print_supported_devices
     """
 
@@ -36,7 +35,7 @@ class blehrmRegistry:
         Returns:
             A decorator function that registers the sensor class.
         """
-        def decorator(sensor_class: Type[SensorReaderInterface]):
+        def decorator(sensor_class: Type[BlehrmClientInterface]):
             services = {
                 'ibi': hasattr(sensor_class, 'start_ibi_stream'),
                 'acc': cls._is_method_overridden(sensor_class, '_acc_data_processor'),
@@ -50,12 +49,12 @@ class blehrmRegistry:
         return decorator
     
     @staticmethod
-    def _is_method_overridden(sensor_class: Type[SensorReaderInterface], method_name: str) -> bool:
+    def _is_method_overridden(sensor_class: Type[BlehrmClientInterface], method_name: str) -> bool:
         """Check if a method is overridden in the concrete subclass."""
         if not hasattr(sensor_class, method_name):
             return False
         concrete_method = getattr(sensor_class, method_name)
-        base_method = getattr(SensorReaderInterface, method_name)
+        base_method = getattr(BlehrmClientInterface, method_name)
         return concrete_method is not base_method
 
     @classmethod
@@ -94,7 +93,7 @@ class blehrmRegistry:
         return supported
     
     @classmethod
-    def get_device_class(cls, device_type: str) -> SensorReaderInterface:
+    def get_device_class(cls, device_type: str) -> BlehrmClientInterface:
         ''' Returns the class of the device with device_type
         '''
         return cls._sensors[device_type]['class']
@@ -106,8 +105,8 @@ class blehrmRegistry:
         return cls._sensors[device_type]['services']
 
     @classmethod
-    def create_reader(cls, device: BLEDevice) -> SensorReaderInterface:
-        ''' Returns a concrete subclass of SensorReaderInterface for the BLEDevice
+    def create_client(cls, device: BLEDevice) -> BlehrmClientInterface:
+        ''' Returns a concrete subclass of BlehrmClientInterface for the BLEDevice
         '''
         support = cls.device_support(device)
         if not support:
@@ -115,34 +114,6 @@ class blehrmRegistry:
         device_class = cls.get_device_class(support)
         return device_class(device)
 
-    @staticmethod
-    def print_supported_devices(supported_devices: List[Tuple[BLEDevice, SensorReaderInterface]]) -> None:
-        """
-        Print details of BLEDevice objects in a formatted table.
-
-        Args:
-        supported_devices (List[Tuple[BLEDevice, SensorReaderInterface]]): A list of BLEDevice objects 
-        to print and their corresponding class, and available services
-
-        Returns:
-        None: This function prints to stdout and doesn't return anything.
-        """
-        if not supported_devices:
-            print("No supported devices found.")
-            return
-
-        headers = ["Name", "Address", "Type", "Services"]
-        table_data = []
-
-        for device, device_type in supported_devices:
-            name = device.name if device.name else "N/A"
-            address = device.address
-            services = blehrmRegistry.get_device_services(device_type)
-            services_str = ", ".join([s for s, available in services.items() if available])
-
-            table_data.append([name, address, device_type, services_str])
-
-        print(tabulate(table_data, headers=headers, tablefmt="simple"))
 
 class DeviceNotSupportedError(Exception):
     pass

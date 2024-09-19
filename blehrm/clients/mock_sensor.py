@@ -1,13 +1,13 @@
-from blehrm.interface import SensorReaderInterface
-from blehrm.registry import blehrmRegistry
+from ..interface import BlehrmClientInterface
+from ..registry import BlehrmRegistry
 import asyncio
 import random
 import time
 import numpy as np
 import math
 
-@blehrmRegistry.register("MockSensor")
-class MockSensorReader(SensorReaderInterface):
+@BlehrmRegistry.register("MockSensor")
+class MockSensorReader(BlehrmClientInterface):
     '''
     Mock sensor that simulates rr-interval
     '''

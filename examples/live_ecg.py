@@ -1,5 +1,4 @@
-from blehrm import readers
-from blehrm import registry
+import blehrm
 from bleak import BleakScanner
 import asyncio
 from PySide6.QtCore import Qt, QPointF, QTimer
@@ -41,6 +40,7 @@ class View(QChartView):
         ''' Update buffer with values epoch_s, and ecg'''
         t, y = data[0], data[1]
         self.buffer.append((t, y))
+        # self.buffer.append(data)
 
     def update_series(self):
         ''' Receives ecg data and updates the chart '''
@@ -63,9 +63,9 @@ async def main(view):
         print(f"Device with address {ADDRESS} not found")
         return
 
-    blehrm_reader = registry.blehrmRegistry.create_reader(ble_device)    
-    await blehrm_reader.connect()
-    await blehrm_reader.start_ecg_stream(view.update_buffer)
+    blehrm_client = blehrm.create_client(ble_device)    
+    await blehrm_client.connect()
+    await blehrm_client.start_ecg_stream(view.update_buffer)
 
     print("Streaming ecg data. Press Ctrl+C to stop.")
     while True:

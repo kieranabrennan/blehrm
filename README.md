@@ -1,4 +1,4 @@
-# 🎴 blehrm
+# blehrm
 
 Bluetooth Low Energy Heart Rate Monitoring
 

@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 @BlehrmRegistry.register("GarminHRMPro")
-class GarminHRMProReader(BlehrmClientInterface):
+class GarminHRMProClient(BlehrmClientInterface):
     
     def __init__(self, ble_device):
         super().__init__(ble_device)

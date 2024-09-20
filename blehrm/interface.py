@@ -71,26 +71,38 @@ class BlehrmClientInterface(ABC):
         except Exception as e:
             self.logger.error(f"Failed to disconnect: {e}")
 
-    async def get_device_info(self) -> None:
+    async def get_device_info(self) -> dict:
         """Retrieve device information.
 
         This method reads the model number, manufacturer name, and battery level
         from the device.
+
+        Returns:
+            A dictionary containing the device information.
         """
-        self.model_number = await self.bleak_client.read_gatt_char(MODEL_NBR_UUID)
-        self.manufacturer_name = await self.bleak_client.read_gatt_char(MANUFACTURER_NAME_UUID)
-        self.battery_level = await self.bleak_client.read_gatt_char(BATTERY_LEVEL_UUID)
+        model_number = await self.bleak_client.read_gatt_char(MODEL_NBR_UUID)
+        manufacturer_name = await self.bleak_client.read_gatt_char(MANUFACTURER_NAME_UUID)
+        battery_level = await self.bleak_client.read_gatt_char(BATTERY_LEVEL_UUID)
+        
+        return {
+            "model_number": ''.join(map(chr, model_number)),
+            "manufacturer_name": ''.join(map(chr, manufacturer_name)),
+            "battery_level": int(battery_level[0])
+        }
 
     async def print_device_info(self) -> None:
         """Print device information to console.
 
-        Displays the model number, manufacturer name, and battery level.
+        Retrieves and then displays the model number, manufacturer name, and battery level.
         """   
         BLUE = "\033[94m"
         RESET = "\033[0m"
-        print(f"Model No.: {BLUE}{''.join(map(chr, self.model_number))}{RESET}\n"
-            f"Manufacturer: {BLUE}{''.join(map(chr, self.manufacturer_name))}{RESET}\n"
-            f"Battery: {BLUE}{int(self.battery_level[0])}%{RESET}")
+        
+        device_info = await self.get_device_info()
+        
+        print(f"Model No.: {BLUE}{device_info['model_number']}{RESET}\n"
+            f"Manufacturer: {BLUE}{device_info['manufacturer_name']}{RESET}\n"
+            f"Battery: {BLUE}{device_info['battery_level']}%{RESET}")
 
     @property
     def ibi_callback(self) -> DataCallback:

@@ -7,7 +7,7 @@ import numpy as np
 import math
 
 @BlehrmRegistry.register("MockSensor")
-class MockSensorReader(BlehrmClientInterface):
+class MockSensorClient(BlehrmClientInterface):
     '''
     Mock sensor that simulates rr-interval
     '''

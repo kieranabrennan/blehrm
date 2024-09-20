@@ -5,7 +5,7 @@ import numpy as np
 import math
 
 @BlehrmRegistry.register("PolarH10")
-class PolarH10Reader(BlehrmClientInterface):
+class PolarH10Client(BlehrmClientInterface):
     
     ## UNKNOWN 1 SERVICE
     U1_SERVICE_UUID = "6217ff4b-fb31-1140-ad5a-a45545d7ecf3"
@@ -102,11 +102,11 @@ class PolarH10Reader(BlehrmClientInterface):
 
     async def start_acc_stream(self, callback):
         self.set_acc_callback(callback)
-        await self.bleak_client.write_gatt_char(PolarH10Reader.PMD_CHAR1_UUID, PolarH10Reader.ACC_WRITE, response=True)
-        await self.bleak_client.start_notify(PolarH10Reader.PMD_CHAR2_UUID, self._acc_data_handler)
+        await self.bleak_client.write_gatt_char(PolarH10Client.PMD_CHAR1_UUID, PolarH10Client.ACC_WRITE, response=True)
+        await self.bleak_client.start_notify(PolarH10Client.PMD_CHAR2_UUID, self._acc_data_handler)
 
     async def stop_acc_stream(self):
-        await self.bleak_client.stop_notify(PolarH10Reader.PMD_CHAR2_UUID)
+        await self.bleak_client.stop_notify(PolarH10Client.PMD_CHAR2_UUID)
 
     def _acc_data_processor(self, data): 
     # [02 EA 54 A2 42 8B 45 52 08 01 45 FF E4 FF B5 03 45 FF E4 FF B8 03 ...]
@@ -118,7 +118,7 @@ class PolarH10Reader(BlehrmClientInterface):
 
         if data[0] == 0x02:
             time_step = 0.005 # 200 Hz sample rate
-            timestamp = PolarH10Reader.convert_to_unsigned_long(data, 1, 8)/1.0e9 # timestamp of the last sample in the record
+            timestamp = PolarH10Client.convert_to_unsigned_long(data, 1, 8)/1.0e9 # timestamp of the last sample in the record
             
             frame_type = data[9]
             resolution = (frame_type + 1) * 8 # 16 bit
@@ -137,11 +137,11 @@ class PolarH10Reader(BlehrmClientInterface):
             offset = 0
             sample_data = []
             while offset < len(samples):
-                x = PolarH10Reader.convert_array_to_signed_int(samples, offset, step)/100.0
+                x = PolarH10Client.convert_array_to_signed_int(samples, offset, step)/100.0
                 offset += step
-                y = PolarH10Reader.convert_array_to_signed_int(samples, offset, step)/100.0
+                y = PolarH10Client.convert_array_to_signed_int(samples, offset, step)/100.0
                 offset += step
-                z = PolarH10Reader.convert_array_to_signed_int(samples, offset, step)/100.0
+                z = PolarH10Client.convert_array_to_signed_int(samples, offset, step)/100.0
                 offset += step
 
                 sample_data.append([sample_timestamp, x, y, z])
@@ -151,17 +151,17 @@ class PolarH10Reader(BlehrmClientInterface):
 
     async def start_ecg_stream(self, callback):
         self.set_ecg_callback(callback)
-        await self.bleak_client.write_gatt_char(PolarH10Reader.PMD_CHAR1_UUID, PolarH10Reader.ECG_WRITE, response=True)
-        await self.bleak_client.start_notify(PolarH10Reader.PMD_CHAR2_UUID, self._ecg_data_handler)
+        await self.bleak_client.write_gatt_char(PolarH10Client.PMD_CHAR1_UUID, PolarH10Client.ECG_WRITE, response=True)
+        await self.bleak_client.start_notify(PolarH10Client.PMD_CHAR2_UUID, self._ecg_data_handler)
 
     async def stop_ecg_stream(self):
-        await self.bleak_client.stop_notify(PolarH10Reader.PMD_CHAR2_UUID)
+        await self.bleak_client.stop_notify(PolarH10Client.PMD_CHAR2_UUID)
         
     def _ecg_data_processor(self, data):
     # [00 EA 1C AC CC 99 43 52 08 00 68 00 00 58 00 00 46 00 00 3D 00 00 32 00 00 26 00 00 16 00 00 04 00 00 ...]
     # 00 = ECG; EA 1C AC CC 99 43 52 08 = last sample timestamp in nanoseconds; 00 = ECG frameType, sample0 = [68 00 00] microVolts(104), sample1, sample2, ....
         if data[0] == 0x00:
-            timestamp = PolarH10Reader.convert_to_unsigned_long(data, 1, 8)/1.0e9
+            timestamp = PolarH10Client.convert_to_unsigned_long(data, 1, 8)/1.0e9
             step = 3
             time_step = 1.0/ self.ECG_SAMPLING_FREQ
             samples = data[10:]
@@ -178,7 +178,7 @@ class PolarH10Reader(BlehrmClientInterface):
             sample_timestamp = timestamp - recordDuration + self.polar_to_epoch_s # timestamp of the first sample in the record in epoch seconds
             sample_data = []
             while offset < len(samples):
-                ecg = PolarH10Reader.convert_array_to_signed_int(samples, offset, step)       
+                ecg = PolarH10Client.convert_array_to_signed_int(samples, offset, step)       
                 offset += step
 
                 sample_data.append([sample_timestamp, ecg])

@@ -4,3 +4,5 @@ __pycache__/
 *.egg-info/
 *.egg
 test.py
+dist/
+NOTES.md

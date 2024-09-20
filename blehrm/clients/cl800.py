@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 @BlehrmRegistry.register("CL800")
-class CL800Reader(BlehrmClientInterface):
+class CL800Client(BlehrmClientInterface):
     
     ## ACCELEROMETER SERVCIE
     ACC_SERVICE_UUID = "aae28f00-71b5-42a1-8c3c-f9cf6ac969d0"
@@ -74,11 +74,11 @@ class CL800Reader(BlehrmClientInterface):
 
     async def start_acc_stream(self, callback):
         self.set_acc_callback(callback)
-        await self.bleak_client.write_gatt_char(CL800Reader.ACC_CHAR1_UUID, CL800Reader.ACC_WRITE, response=True)
-        await self.bleak_client.start_notify(CL800Reader.ACC_CHAR2_UUID, self._acc_data_handler)
+        await self.bleak_client.write_gatt_char(CL800Client.ACC_CHAR1_UUID, CL800Client.ACC_WRITE, response=True)
+        await self.bleak_client.start_notify(CL800Client.ACC_CHAR2_UUID, self._acc_data_handler)
         
     async def stop_acc_stream(self):
-        await self.bleak_client.stop_notify(CL800Reader.ACC_CHAR2_UUID)
+        await self.bleak_client.stop_notify(CL800Client.ACC_CHAR2_UUID)
 
     def _acc_data_processor(self, data: bytearray) -> np.ndarray: 
         '''

@@ -188,7 +188,6 @@ class BlehrmClientInterface(ABC):
             if row.ndim > 1:
                 self.logger.warning("More than one ACC data row")
             self.acc_callback(row)
-        pass
 
     def _acc_data_processor(self, data:bytearray) -> np.ndarray:
         """ Process sensor byte data, returning numpy array of the result, where each row is a data point
@@ -233,7 +232,6 @@ class BlehrmClientInterface(ABC):
             if row.ndim > 1:
                 self.logger.warning("More than one ECG data row")
             self.ecg_callback(row)
-        pass
 
     def _ecg_data_processor(self, data: bytearray) -> np.ndarray:
         """ Process sensor byte data, returning numpy array of the result, where each row is a data point

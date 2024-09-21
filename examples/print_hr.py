@@ -1,13 +1,13 @@
 import asyncio
 from bleak import BleakScanner
-import blehrm
+from blehrm import blehrm
 import sys
 from datetime import datetime
 
-ADDRESS = "CF7582F0-5AA4-7279-63A3-5850A4B6F780" # CL800
+# ADDRESS = "CF7582F0-5AA4-7279-63A3-5850A4B6F780" # CL800
 # ADDRESS = "5BE8C8E0-8FA7-CEE7-4662-D49695040AF7" # Polar H10
-# ADDRESS = "34987821-60E5-03FB-70CC-BF552DC66039" # Garmin HRM Pro
-    
+ADDRESS = "34987821-60E5-03FB-70CC-BF552DC66039" # Garmin HRM Pro
+
 async def main():
     ble_device = await BleakScanner.find_device_by_address(ADDRESS, timeout=20.0)
     if ble_device is None:
@@ -23,6 +23,7 @@ async def main():
         await asyncio.sleep(1)
 
 def print_callback(data):
+    # pass
     if data.size > 0:
         t, ibi = data
         t_str = datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S.%f")

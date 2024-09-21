@@ -31,7 +31,7 @@ To discover (supported) HR monitors:
 
 ```python
 
-    import blehrm
+    from blehrm import blehrm
     from bleak import BleakScanner
     import asyncio
 
@@ -66,7 +66,7 @@ Consume data stream with a callback
 
     import asyncio
     from bleak import BleakScanner
-    import blehrm
+    from blehrm import blehrm
     import sys
     from datetime import datetime
 

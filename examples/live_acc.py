@@ -1,4 +1,4 @@
-import blehrm
+from blehrm import blehrm
 from bleak import BleakScanner
 import asyncio
 import sys
@@ -6,77 +6,151 @@ import numpy as np
 from PySide6.QtWidgets import QApplication, QMainWindow
 import pyqtgraph.opengl as gl
 from qasync import QEventLoop
+from scipy.spatial.transform import Rotation
 
-ADDRESS = "CF7582F0-5AA4-7279-63A3-5850A4B6F780" # CL800
-# ADDRESS = "5BE8C8E0-8FA7-CEE7-4662-D49695040AF7" # Polar H10
+ADDRESS = "5BE8C8E0-8FA7-CEE7-4662-D49695040AF7" # Polar H10
 
-class AccelerometerVisualizer(QMainWindow):
+class DiceGroup(gl.GLGraphicsItem.GLGraphicsItem):
+    def __init__(self):
+        gl.GLGraphicsItem.GLGraphicsItem.__init__(self)
+        self.items = []
+
+    def addItem(self, item):
+        self.items.append(item)
+        item.setParentItem(self)
+
+class DiceVisualizer(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("3D Accelerometer Visualization")
+        self.setWindowTitle("3D Dice Visualization")
         self.resize(800, 600)
 
         self.plot_widget = gl.GLViewWidget()
         self.setCentralWidget(self.plot_widget)
 
-        grid = gl.GLGridItem()
-        self.plot_widget.addItem(grid)
+        # Create a dice
+        self.dice_group = DiceGroup()
+        self.create_dice()
+        self.plot_widget.addItem(self.dice_group)
 
-        axis_length = 2
-        x_axis = gl.GLLinePlotItem(pos=np.array([[0, 0, 0], [axis_length, 0, 0]]), color=(1, 0, 0, 1), width=2)
-        y_axis = gl.GLLinePlotItem(pos=np.array([[0, 0, 0], [0, axis_length, 0]]), color=(0, 1, 0, 1), width=2)
-        z_axis = gl.GLLinePlotItem(pos=np.array([[0, 0, 0], [0, 0, axis_length]]), color=(0, 0, 1, 1), width=2)
-        self.plot_widget.addItem(x_axis)
-        self.plot_widget.addItem(y_axis)
-        self.plot_widget.addItem(z_axis)
+        # Set up the camera
+        self.plot_widget.setCameraPosition(distance=7, elevation=20, azimuth=45)
 
-        self.vector = gl.GLLinePlotItem(pos=np.array([[0, 0, 0], [1, 1, 1]]), color=(1, 1, 0, 1), width=3)
-        self.plot_widget.addItem(self.vector)
+        # Initialize the previous acceleration vector
+        self.prev_acc = np.array([0, 0, 1])
 
-        self.trail = gl.GLLinePlotItem(pos=np.array([[0, 0, 0]]), color=(1, 1, 0, 0.5), width=2)
-        self.plot_widget.addItem(self.trail)
-        self.trail_data = np.array([[0, 0, 0]])
+    def create_dice(self):
+        # Create individual faces for the cube
+        face_color = (0.9, 0.9, 0.9, 1.0)
+        edge_color = (0, 0, 0, 1)
+        
+        # Define vertices for a 2x2x2 cube centered at the origin
+        verts = [
+            [1, 1, 1], [-1, 1, 1], [-1, -1, 1], [1, -1, 1],
+            [1, 1, -1], [-1, 1, -1], [-1, -1, -1], [1, -1, -1]
+        ]
 
-    def update_acc_vector(self, data):
-        t, x, y, z = data
-        new_pos = np.array([[0, 0, 0], [x, y, z]])
-        self.vector.setData(pos=new_pos)
+        # Define faces using vertex indices
+        faces = [
+            [0, 1, 2, 3],  # Front
+            [4, 5, 6, 7],  # Back
+            [0, 4, 7, 3],  # Right
+            [1, 5, 6, 2],  # Left
+            [0, 1, 5, 4],  # Top
+            [3, 2, 6, 7]   # Bottom
+        ]
 
-        self.trail_data = np.vstack([self.trail_data, [x, y, z]])
-        if len(self.trail_data) > 100:
-            self.trail_data = self.trail_data[-100:]
-        self.trail.setData(pos=self.trail_data)
+        for face in faces:
+            face_verts = [verts[i] for i in face]
+            face_mesh = gl.GLMeshItem(
+                vertexes=np.array(face_verts),
+                faces=np.array([[0, 1, 2], [0, 2, 3]]),
+                smooth=False,
+                drawEdges=True,
+                edgeColor=edge_color,
+                color=face_color
+            )
+            self.dice_group.addItem(face_mesh)
+
+        # Add pips (dots) to the faces
+        self.create_pips()
+
+    def create_pips(self):
+        pip_radius = 0.08
+        pip_color = (0, 0, 0, 1)  # Black color
+
+        # Define pip positions for each face
+        pip_positions = {
+            1: [(0, 0, 1.01)],  # Front face (1)
+            2: [(-0.5, 0.5, -1.01), (0.5, -0.5, -1.01)],  # Back face (2)
+            3: [(1.01, -0.5, 0.5), (1.01, 0, 0), (1.01, 0.5, -0.5)],  # Right face (3)
+            4: [(-1.01, -0.5, -0.5), (-1.01, -0.5, 0.5), (-1.01, 0.5, -0.5), (-1.01, 0.5, 0.5)],  # Left face (4)
+            5: [(-0.5, 1.01, -0.5), (-0.5, 1.01, 0.5), (0, 1.01, 0), (0.5, 1.01, -0.5), (0.5, 1.01, 0.5)],  # Top face (5)
+            6: [(-0.5, -1.01, -0.5), (-0.5, -1.01, 0), (-0.5, -1.01, 0.5),
+                (0.5, -1.01, -0.5), (0.5, -1.01, 0), (0.5, -1.01, 0.5)]  # Bottom face (6)
+        }
+
+        for positions in pip_positions.values():
+            for pos in positions:
+                pip = gl.GLMeshItem(
+                    meshdata=gl.MeshData.sphere(rows=20, cols=20, radius=pip_radius),
+                    smooth=True,
+                    color=pip_color,
+                    glOptions='opaque'
+                )
+                pip.translate(pos[0], pos[1], pos[2])
+                self.dice_group.addItem(pip)
+
+    def update_dice_orientation(self, data):
+        _, x, y, z = data
+        # Normalize the acceleration vector
+        acc_vector = np.array([x, y, z])
+        acc_vector = acc_vector / np.linalg.norm(acc_vector)
+
+        # Calculate rotation from previous acceleration to current acceleration
+        rotation = Rotation.align_vectors([acc_vector], [self.prev_acc])[0]
+        
+        # Convert rotation to Euler angles
+        angles = rotation.as_euler('xyz', degrees=True)
+
+        # Apply rotation to the dice group
+        self.dice_group.rotate(angles[0], 1, 0, 0)
+        self.dice_group.rotate(angles[1], 0, 1, 0)
+        self.dice_group.rotate(angles[2], 0, 0, 1)
+
+        # Update previous acceleration
+        self.prev_acc = acc_vector
 
 async def main(view):
-    
     ble_device = await BleakScanner.find_device_by_address(ADDRESS, timeout=20.0)
     if ble_device is None:
         print(f"Device with address {ADDRESS} not found")
         return
 
-    blehrm_client = blehrm.registry.BlehrmRegistry.create_client(ble_device)    
+    blehrm_client = blehrm.create_client(ble_device)    
     await blehrm_client.connect()
-    await blehrm_client.start_acc_stream(view.update_acc_vector)
+    await blehrm_client.start_acc_stream(view.update_dice_orientation)
 
     print("Streaming acc data. Press Ctrl+C to stop.")
     while True:
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.1)
 
 if __name__ == '__main__':
-    
     app = QApplication(sys.argv)
-    window = AccelerometerVisualizer()
+    window = DiceVisualizer()
 
     loop = QEventLoop(app)
     asyncio.set_event_loop(loop)
 
-    window.setWindowTitle("BLEHRM")
-    window.resize(800, 400)
+    window.setWindowTitle("3D Dice Visualization")
+    window.resize(800, 600)
     window.show()
 
     try:
         loop.run_until_complete(main(window))
     except KeyboardInterrupt:
         print("\nStream stopped by user.")
+    finally:
+        loop.close()
 
     sys.exit(app.exec())

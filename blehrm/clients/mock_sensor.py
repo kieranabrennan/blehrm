@@ -41,11 +41,11 @@ class MockSensorClient(BlehrmClientInterface):
         '''
         while self.stream_ibi:
             await asyncio.sleep(random.uniform(0.8, 1.3))
-            callback(np.array([time.time_ns()/1.0e9, random.randint(55, 80)]))
+            callback(np.array([time.time_ns()/1.0e9, random.randint(800, 1300)]))
     
-    def _ibi_data_handler(self, sender, data) -> None:
+    def _ibi_data_processor(self, data:bytearray) -> np.ndarray:
         ''' Required by the ABC'''
-        pass
+        return np.array([])
 
     async def stop_ibi_stream(self) -> None:
         self.stream_ibi = False
@@ -60,11 +60,15 @@ class MockSensorClient(BlehrmClientInterface):
         while self.stream_acc:
             await asyncio.sleep(0.01)
             t = time.time_ns()/1.0e9
-            x = math.sin(2 * math.pi * 2 * time.time())
-            y = math.cos(2 * math.pi * 2 * time.time())
-            z = random.uniform(-0.1, 0.1)
+            x = math.sin(2 * math.pi * 0.2 * t)
+            y = math.cos(2 * math.pi * 0.2 * t)
+            z = math.sin(2 * math.pi * 0.1 * t + math.pi/2)
 
             callback(np.array([t, x, y, z]))
-           
+
+    def _acc_data_processor(self, data:bytearray) -> np.ndarray:
+        ''' Required by the ABC'''
+        return np.array([])
+        
     async def stop_acc_stream(self) -> None:
         self.stream_acc = False

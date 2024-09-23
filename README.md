@@ -109,6 +109,13 @@ Streaming interbeat-interval data. Press Ctrl+C to stop.
 
 ## Application Examples
 
+### Compare HR accuracy between sensors
+
+examples/hr_comparison.py
+
+![HR Comparison](images/hr_comparison.png "HR Comparison")
+
+
 ### Live ECG
 examples/live_ecg.py
 
@@ -120,12 +127,6 @@ examples/live_ecg.py
 examples/live_acc.py
 
 ![Live ACC Example](images/live_acc.gif "Live ACC Example")
-
-### Compare HR accuracy between sensors
-
-examples/hr_comparison.py
-
-![HR Comparison](images/hr_comparison.png "HR Comparison")
 
 
 ## Development

@@ -1,5 +1,5 @@
 from blehrm import blehrm
-from bleak import BleakScanner
+from bleak import BleakScanner, BLEDevice
 import asyncio
 import sys
 import numpy as np
@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 import pyqtgraph.opengl as gl
 from qasync import QEventLoop
 from scipy.spatial.transform import Rotation
+import argparse
 
 ADDRESS = "5BE8C8E0-8FA7-CEE7-4662-D49695040AF7" # Polar H10
 
@@ -121,13 +122,17 @@ class DiceVisualizer(QMainWindow):
         # Update previous acceleration
         self.prev_acc = acc_vector
 
-async def main(view):
-    ble_device = await BleakScanner.find_device_by_address(ADDRESS, timeout=20.0)
-    if ble_device is None:
-        print(f"Device with address {ADDRESS} not found")
-        return
+async def main(view, use_mock = False):
+    if use_mock:
+        ble_device = BLEDevice(address="Mock", name="Mock", details=None, rssi=0)    
+    else:
+        ble_device = await BleakScanner.find_device_by_address(ADDRESS, timeout=20.0)
+        if ble_device is None:
+            print(f"Device with address {ADDRESS} not found")
+            return
 
     blehrm_client = blehrm.create_client(ble_device)    
+    print(blehrm_client)
     await blehrm_client.connect()
     await blehrm_client.start_acc_stream(view.update_dice_orientation)
 
@@ -136,6 +141,10 @@ async def main(view):
         await asyncio.sleep(0.1)
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Print heart rate data")
+    parser.add_argument("--use-mock", action="store_true", help="Use mock hr data")
+    args = parser.parse_args()
+
     app = QApplication(sys.argv)
     window = DiceVisualizer()
 
@@ -147,7 +156,7 @@ if __name__ == '__main__':
     window.show()
 
     try:
-        loop.run_until_complete(main(window))
+        loop.run_until_complete(main(window, use_mock=args.use_mock))
     except KeyboardInterrupt:
         print("\nStream stopped by user.")
     finally:

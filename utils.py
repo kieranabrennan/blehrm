@@ -75,6 +75,6 @@ if __name__ == "__main__":
 
     asyncio.run(ble_scanner_tabulate())
     
-    device_address = "34987821-60E5-03FB-70CC-BF552DC66039"
+    device_address = "371221C5-1A6F-185C-0265-1F2829C71932"
     
     asyncio.run(print_device_info(device_address))

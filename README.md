@@ -11,6 +11,7 @@ Blehrm provides a simple asynchronous platform to connect with commonly availabl
 ## Supported Devices:
 - Polar H10
 - Garmin HRM Pro
+- Movesense
 - CL800
 
 ## Installation
@@ -21,7 +22,7 @@ pip install blehrm
 
 ## Features
 
-- Stream interbeat interval (time between heart beats), and raw ECG and accelerometer for supported devices
+- Stream interbeat interval (time between heart beats), and raw ECG and accelerometer
 - A simple interface to easily extend to other BLE HR monitors
 - Discover supported BLE HR monitors nearby
 

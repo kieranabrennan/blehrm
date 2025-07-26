@@ -13,6 +13,7 @@ Blehrm provides a simple asynchronous platform to connect with commonly availabl
 - Garmin HRM Pro
 - Movesense
 - CL800
+- Coospo H6M
 
 ## Installation
 
@@ -56,6 +57,8 @@ To discover (supported) HR monitors:
 │ Polar H10 79324520 │ 5BE8C8E0-8FA7-CEE7-4662-D49695040AF7 │ PolarH10     │ ibi, acc, ecg │
 ╘════════════════════╧══════════════════════════════════════╧══════════════╧═══════════════╛
 ```
+
+Note for linux: A address looks like `C1:94:A2:E3:86:A9`.
 
 Connect and stream interbeat interval 
 

@@ -228,6 +228,9 @@ class BlehrmClientInterface(ABC):
             data: The raw bytes ecg data.
         """
         result = self._ecg_data_processor(data)
+        if result is None:
+            return
+
         for row in result:
             if row.ndim > 1:
                 self.logger.warning("More than one ECG data row")

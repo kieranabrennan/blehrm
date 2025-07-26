@@ -4,3 +4,4 @@ from . import mock_sensor
 from . import polar_h10
 from . import garmin_hrm_pro
 from . import movesense
+from . import coospo_h6m
